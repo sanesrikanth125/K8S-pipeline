@@ -1,0 +1,26 @@
+node {
+    stage('git url'){
+        git credentialsId: 'git', url: 'https://github.com/peddaraj/spring-boot-mongo-docker.git'
+    }
+    stage ('maven') {
+        sh label: '', script: 'mvn clean package '
+    }
+stage ('built') {
+sh label: '', script: 'docker build -t srikanth119/mongo3 .'
+}
+    stage('docker'){
+      sh label: '', script: 'docker login docker.io -u srikanth119 -p srika*****@ '
+}
+
+stage('push to docker hub'){
+ sh label: '', script: 'docker push srikanth119/mongo3'
+    }
+    stage('kube_deploy_application'){
+        kubernetesDeploy(
+            configs: 'springBootMongo.yml',
+            kubeconfigId:'K8s_cluster',
+            enableConfigSubstitution: true
+            )
+    }
+
+}
